@@ -828,3 +828,42 @@ Enfin, il faudra vérifier la version de Pandera utilisée et tester les schéma
 Observations : les 15 règles sont couvertes ou discutées, la gravité est attribuée, les contrôles sont nommés R1 à R15 et le rapport est consolidé. L'IA identifie à juste titre que R15 n'est pas exécutable, faute de colonne de libellé dans l'ERP : la règle est à reformuler. Défauts à confirmer par les tests : les erreurs sans identifiant de règle sont ignorées silencieusement dans le rapport, les lignes « attachment » ne sont pas filtrées (risque de faux doublons pour R8), R10 ignore les colonnes remplies de zéros, R11 ignore les entités HTML (&amp;), R14 n'est pas implémentée, l'import Pandera utilise une ancienne syntaxe, et le code fait environ 300 lignes.
 
 Décision : retenu comme base de travail, sous réserve des tests sur données réelles (ticket #5).
+
+
+## Essai 3 – 9 octobre 2026
+
+Outil et modèle : code généré à l'essai 2 (ChatGPT, version gratuite), exécuté sans modification dans le notebook test_chatgpt_promptB.ipynb
+
+Objectif : tester le code de l'IA sur l'export réel d'octobre et le comparer aux règles construites pas à pas (notebook bottleneck_qualite.ipynb)
+
+Environnement : pandas 3.0.2, Pandera 0.34.1
+
+Résultat : le code s'exécute sans erreur en 0,2 seconde, mais annonce 5 916 anomalies contre environ 1 170 pour la construction guidée.
+
+| Règle | ChatGPT | Construction guidée | Explication de l'écart |
+|---|---|---|---|
+| R1 | 18 | 3 | Une ligne par colonne (3 produits × 6 colonnes) |
+| R2 | 12 | 2 | Même effet (2 × 6) |
+| R3 | 24 | 2 | Stocks négatifs comptés en doublon de R2 |
+| R4 | 42 | 4 | Prix négatifs comptés en doublon de R1 |
+| R5 | 401 | 3 + 2 | Lignes d'images et lignes vides comptées |
+| R8 | 1 428 | 797 | Faux doublons produit/image, vrai problème non nommé |
+| R9 | 295 | 2 | Lignes d'images et lignes vides comptées |
+| R10 | 4 | 4 + 12 | Colonnes constantes non détectées |
+| R11 | 3 648 | 183 | Lignes d'images comptées, entités HTML ignorées |
+| R6, R7, R12, R13 | 3, 21, 20, 0 | 3, 21, 20, 0 | Identique |
+| R14 | Non implémentée | 1 | – |
+| R15 | Non exécutable | 111 | – |
+
+Observations : le code de l'IA est juste sur les règles inter-tables, mais gonfle les autres pour trois raisons : le format d'erreur de Pandera (une ligne par colonne), l'absence de filtrage des lignes non-produits et des règles qui se chevauchent. Un rapport de 5 916 lignes serait inutilisable par l'équipe métier.
+
+| Critère | ChatGPT (prompt B) | Construction guidée |
+|---|---|---|
+| Erreurs réelles détectées | Toutes sauf R14, R15 et entités HTML | Toutes |
+| Faux positifs et doublons | Très nombreux | Aucun constaté |
+| Lisibilité du résultat | Faible | Bonne |
+| Temps de mise en œuvre | Très court | Plusieurs heures |
+| Taille du code | Environ 300 lignes | Environ 100 lignes |
+| Maintenabilité | Faible | Bonne |
+
+Décision : la construction guidée est retenue. Le prompt structuré reste utile pour amorcer le travail et a permis de repérer le défaut de la règle R15, mais le code généré ne peut pas être utilisé sans relecture ni test sur les données réelles.
