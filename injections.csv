@@ -1,0 +1,14 @@
+Règle,Table,Identifiant,Modification
+R1,ERP,6221,Prix de vente mis à 0
+R2,ERP,4275,Stock mis à -5
+R3,ERP,6585,"Stock mis à 0, statut instock conservé"
+R4,ERP,4632,Prix de vente égal à la moitié du prix d'achat
+R5,Liaison,5764,Lettre ajoutée à l'identifiant web
+R6,Liaison,4920,Identifiant web supprimé pour un produit en vente web
+R8,Web,14509,Ligne produit dupliquée
+R9,Web,15481,Ventes mises à -3
+R10,Web,colonne_test_vide,Colonne entièrement vide ajoutée
+R11,Web,15856,Balise HTML ajoutée au titre
+R13,Web,99999,"Produit ajouté sur le site, absent de la liaison et de l'ERP"
+R14,Web,15075,Type de produit supprimé
+Structure,ERP,4713,Statut de stock hors des valeurs autorisées
